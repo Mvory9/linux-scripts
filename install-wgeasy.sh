@@ -13,7 +13,7 @@ if ! command -v docker &> /dev/null; then
 fi
 
 # Генерация случайного пароля
-PASSWORD_LENGTH=16
+PASSWORD_LENGTH=24
 PASSWORD=$(openssl rand -base64 $PASSWORD_LENGTH | cut -c1-$PASSWORD_LENGTH)
 
 # Создание bcrypt-хеша пароля
@@ -23,8 +23,8 @@ PASSWORD_HASH=$(docker run -it ghcr.io/w0rng/amnezia-wg-easy wgpw "$PASSWORD" | 
 SERVER_IP=$(curl -4 -s ifconfig.me)
 
 # Генерация случайных портов
-WG_PORT=$((50000 + RANDOM % 1001))  # Случайный порт от 50000 до 51000
-PANEL_PORT=$((40000 + RANDOM % 10000))  # Случайный порт от 40000 до 49999
+WG_PORT=51820
+PANEL_PORT=51821
 
 # Запуск WG Easy в Docker
 echo "Запускаем WG Easy с конфигурацией..."
