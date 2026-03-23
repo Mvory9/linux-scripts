@@ -14,10 +14,10 @@ fi
 
 # Генерация случайного пароля
 PASSWORD_LENGTH=24
-PASSWORD=$(openssl rand -base64 $PASSWORD_LENGTH | cut -c1-$PASSWORD_LENGTH)
+PASSWORD=$(openssl rand -base64 32 | tr -dc 'a-zA-Z0-9' | head -c $PASSWORD_LENGTH)
 
 # Создание bcrypt-хеша пароля
-PASSWORD_HASH=$(docker run -it ghcr.io/w0rng/amnezia-wg-easy wgpw "$PASSWORD" | grep PASSWORD_HASH | cut -d "'" -f 2)
+PASSWORD_HASH=$(docker run --rm ghcr.io/wg-easy/wg-easy wgpw "$PASSWORD" | grep PASSWORD_HASH | cut -d "'" -f 2 | tr -d '\r')
 
 # Получение IP-адреса сервера (только IPv4)
 SERVER_IP=$(curl -4 -s ifconfig.me)
@@ -25,6 +25,9 @@ SERVER_IP=$(curl -4 -s ifconfig.me)
 # Генерация случайных портов
 WG_PORT=51820
 PANEL_PORT=51821
+
+# Удаление старого контейнера, если он существует
+docker rm -f wg-easy &> /dev/null
 
 # Запуск WG Easy в Docker
 echo "Запускаем WG Easy с конфигурацией..."
@@ -35,7 +38,7 @@ docker run --detach \
   --env PASSWORD_HASH="$PASSWORD_HASH" \
   --env PORT=$PANEL_PORT \
   --env WG_PORT=$WG_PORT \
-  --volume ~/.wg-easy:/etc/wireguard \
+  --volume ~/.wg-easy:/etc/guard \
   --publish $WG_PORT:$WG_PORT/udp \
   --publish $PANEL_PORT:$PANEL_PORT/tcp \
   --cap-add NET_ADMIN \
